@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir>
+export BUILD_DIR=$1
+export CACHE_DIR=$2
+export ENV_DIR=$3
 
+JVM_COMMON_BUILDPACK=http://lang-jvm.s3.amazonaws.com/jvm-buildpack-common-v8.tar.gz
+mkdir -p /tmp/jvm-common
+curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
+. /tmp/jvm-common/bin/util
+. /tmp/jvm-common/bin/java
+
+export_env_dir $ENV_DIR
+
+# Install JDK
+javaVersion=$(detect_java_version ${BUILD_DIR})
+echo -n "-----> Installing OpenJDK ${javaVersion}..."
+install_java ${BUILD_DIR} ${javaVersion}
+jdk_overlay ${BUILD_DIR}
+echo "done"
 echo "-----> Nothing to do."
